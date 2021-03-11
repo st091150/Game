@@ -1,0 +1,133 @@
+#include <iostream>
+
+class WorldStatus {
+protected:
+    static int countOfEnemy;
+public:
+    void getcountOfEnemy(){
+        std::cout << countOfEnemy;
+    }
+
+};
+int WorldStatus::countOfEnemy = -1;
+
+class Person {
+protected:
+    const char* name;
+    int HP;
+    double armor;
+    const char* weapon;
+    int damageFromWeapon;
+
+public:
+    Person(const char* weapon,const char* name, int HP = 100, double armor = 1, int damageFromWeapon = 25) :name(name), HP(HP), armor(armor){
+        this->weapon = weapon;
+        this->damageFromWeapon = damageFromWeapon;
+    }
+
+    virtual void showPerson() {};
+    int getDamageFromWeapon() {
+        return damageFromWeapon;
+    }
+    void HPturn(int attackdamage){
+        this->HP = (static_cast<double>(HP - attackdamage)/armor);
+    }
+    virtual ~Person(){
+      //  if (name)delete[] name;
+      //  if (weapon)delete[] weapon;
+    }
+};
+class enemy:public Person,public WorldStatus {
+public:
+    static int ID;
+    enemy() :Person("Sword", "enemy") {
+        countOfEnemy++;
+        ID++;
+    }
+    void getID() {
+        std::cout << ID;
+    }
+    int Attack() {
+        return damageFromWeapon;
+    }
+    void showPerson() {
+        std::cout << "***************"  << std::endl << ID << ")" <<  "name : " << Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
+            "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+    }
+    ~enemy() {
+        countOfEnemy--;
+        std::cout << "enemy is dead " << std::endl;
+    }
+};
+int enemy::ID = 0;
+
+class Hero :public Person,public WorldStatus{
+ public:
+  Hero():Person("Sword", "Hero",55*countOfEnemy,1.1*countOfEnemy,25*countOfEnemy){
+  }
+  void showPerson() {
+      std::cout << "***************" << "name : " << Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
+          "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+  }
+  int Attack() {
+      return damageFromWeapon;
+  }
+  ~Hero() {
+      //std::cout << "********YOU LOSE**********";
+  }
+};
+
+
+
+int menu() {
+    std::cout << "**********Your Turn**********" << std::endl;
+    int action;
+    std::cout << "1: attack" << std::endl;
+    std::cout << "2: Restart the game" << std::endl;
+    std::cout << "0: Close the game" << std::endl;
+    std::cout << "Input number of action: ";
+    std::cin >> action;
+    return action;
+}
+
+
+
+int main()
+{
+    int countOfEnemy;
+    std::cout << "How many opponents do you want to play against" << std::endl;
+    std::cin >> countOfEnemy;
+    Person* Game = new enemy[countOfEnemy+1];
+    Hero Hero;
+    Game[countOfEnemy] = Hero;
+    int action = 1;
+    do {
+        for (int i = 0; i <= countOfEnemy; i++) {
+            Game[i].showPerson();
+        }
+        std::cout << " You have 2 turn every round!" << std::endl;
+        
+        for (int i = 0; i < 2; i++) {
+            action = menu();
+            switch (action) {
+            case 1: {
+                int IDOfenemy;
+                std::cout << "enemy number :";
+                std::cin >> IDOfenemy;
+                std::cout << std::endl;
+                Game[IDOfenemy].HPturn(Game[countOfEnemy].getDamageFromWeapon());
+
+            }
+            case 2: {
+
+            }
+            case 0: {
+            }
+            }
+            if (i == 1) {
+                Game[countOfEnemy].HPturn(Game[0].getDamageFromWeapon() * countOfEnemy);
+            }
+        }
+     } while (action != 0);
+        
+}
