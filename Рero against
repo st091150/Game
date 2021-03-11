@@ -24,25 +24,30 @@ public:
         this->weapon = weapon;
         this->damageFromWeapon = damageFromWeapon;
     }
-
+    int getHP(){
+        return HP;
+    }
     virtual void showPerson() {};
     int getDamageFromWeapon() {
         return damageFromWeapon;
     }
     void HPturn(int attackdamage){
-        this->HP = (static_cast<double>(HP - attackdamage)/armor);
+        this->HP = (HP - static_cast<double>(attackdamage)/armor);
     }
     virtual ~Person(){
       //  if (name)delete[] name;
       //  if (weapon)delete[] weapon;
     }
 };
+
 class enemy:public Person,public WorldStatus {
+    static int count;
+    int ID;
 public:
-    static int ID;
     enemy() :Person("Sword", "enemy") {
+        count++;
+        ID = count;
         countOfEnemy++;
-        ID++;
     }
     void getID() {
         std::cout << ID;
@@ -51,23 +56,29 @@ public:
         return damageFromWeapon;
     }
     void showPerson() {
-        std::cout << "***************"  << std::endl << ID << ")" <<  "name : " << Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
-            "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+        if (HP > 0) {
+            std::cout << "***************" << std::endl << ID << ")" << "name : " << Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
+                "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+        }
+        else {
+            std::cout << "***************" << std::endl << ID << ")" << "name : " << Person::name <<  " IS DEAD" << std::endl;
+        }
     }
     ~enemy() {
-        countOfEnemy--;
+        WorldStatus::countOfEnemy--;
         std::cout << "enemy is dead " << std::endl;
     }
 };
-int enemy::ID = 0;
+int enemy::count = 0;
 
 class Hero :public Person,public WorldStatus{
  public:
-  Hero():Person("Sword", "Hero",55*countOfEnemy,1.1*countOfEnemy,25*countOfEnemy){
+  Hero():Person("Sword", "Pero",55*countOfEnemy,0.8*countOfEnemy,25*countOfEnemy){
   }
   void showPerson() {
-      std::cout << "***************" << "name : " << Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
-          "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+          std::cout << "***************" << "name : " <<  Person::name << std::endl << "HP : " << Person::HP << std::endl << "armor : " << Person::armor << std::endl <<
+              "weapon : " << Person::weapon << std::endl << "damage : " << Person::damageFromWeapon << std::endl << "***************" << std::endl;
+      
   }
   int Attack() {
       return damageFromWeapon;
@@ -94,15 +105,15 @@ int menu() {
 
 int main()
 {
-    int countOfEnemy;
+    int _countOfEnemy;
     std::cout << "How many opponents do you want to play against" << std::endl;
-    std::cin >> countOfEnemy;
-    Person* Game = new enemy[countOfEnemy+1];
+    std::cin >> _countOfEnemy;
+    Person* Game = new enemy[_countOfEnemy+1];
     Hero Hero;
-    Game[countOfEnemy] = Hero;
+    Game[_countOfEnemy] = Hero;
     int action = 1;
     do {
-        for (int i = 0; i <= countOfEnemy; i++) {
+        for (int i = 0; i <= _countOfEnemy; i++) {
             Game[i].showPerson();
         }
         std::cout << " You have 2 turn every round!" << std::endl;
@@ -115,7 +126,7 @@ int main()
                 std::cout << "enemy number :";
                 std::cin >> IDOfenemy;
                 std::cout << std::endl;
-                Game[IDOfenemy].HPturn(Game[countOfEnemy].getDamageFromWeapon());
+                Game[IDOfenemy].HPturn(Game[_countOfEnemy].getDamageFromWeapon());
 
             }
             case 2: {
@@ -125,9 +136,18 @@ int main()
             }
             }
             if (i == 1) {
-                Game[countOfEnemy].HPturn(Game[0].getDamageFromWeapon() * countOfEnemy);
+                int count = 0;
+                for (int i = 0; i < _countOfEnemy; i++) {
+                    if (Game[i].getHP() > 0)count++;
+                }
+                Game[_countOfEnemy].HPturn(Game[0].getDamageFromWeapon() * count);
             }
+        }
+        if (Game[_countOfEnemy].getHP() <= 0) {
+            std::cout << "YOU ARE DEAD ";
+            action = 0;
         }
      } while (action != 0);
         
 }
+
